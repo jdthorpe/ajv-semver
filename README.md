@@ -45,7 +45,7 @@ ajv.validate({type:"string",semver:{lte:"3.2.3",loose:true}},
              "=2.0.0")
 ```
 
-or use one of the range comparison operators (`gt`,`gte`,`lt`,`lte`):
+or use one of the range comparison operators (`gtr`,`ltr`):
 
 ```JavaScript
 ajv.validate({type:"string",semver:{gtr:"1.0.0 - 2.0.0"}},
