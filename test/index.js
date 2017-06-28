@@ -3,16 +3,16 @@
 
 var tap = require('tap');
 var test = tap.test;
-var semver = require('semver');
-var eq = semver.eq;
-var gt = semver.gt;
-var lt = semver.lt;
-var neq = semver.neq;
-var cmp = semver.cmp;
-var gte = semver.gte;
-var lte = semver.lte;
-var satisfies = semver.satisfies;
-var validRange = semver.validRange;
+//-- var semver = require('semver');
+//-- var eq = semver.eq;
+//-- var gt = semver.gt;
+//-- var lt = semver.lt;
+//-- var neq = semver.neq;
+//-- var cmp = semver.cmp;
+//-- var gte = semver.gte;
+//-- var lte = semver.lte;
+//-- var satisfies = semver.satisfies;
+//-- var validRange = semver.validRange;
 
 var Ajv = require("ajv");
 var ajv = new Ajv();
@@ -53,6 +53,7 @@ test('\ncomparison tests', function(t) {
     ['1.2.3-r2', '1.2.3-r100'],
     ['1.2.3-r100', '1.2.3-R2']
   ].forEach(function(v) {
+      // v = ['v0.10.0', '0.9.0', true]
     var v0 = v[0];
     var v1 = v[1];
     var loose = v[2];
@@ -64,6 +65,88 @@ test('\ncomparison tests', function(t) {
     t.ok(ajv.validate({"semver":{"eq":v0, "loose":loose}},v0) , "eq('" + v0 + "', '" + v0 + "')");
     t.ok(ajv.validate({"semver":{"eq":v1, "loose":loose}},v1) , "eq('" + v1 + "', '" + v1 + "')");
     t.ok(ajv.validate({"semver":{"neq":v1, "loose":loose}},v0) , "neq('" + v0 + "', '" + v1 + "')");
+  });
+  t.end();
+});
+
+
+
+test('\nMajor,minor,patch tests', function(t) {
+  // [version1, version2]
+  // version1 should be greater than version2
+  [['0.0.0',0,0,0],
+    ['0.0.1',0,0,1],
+    ['1.0.0',1,0,0],
+    ['0.10.0',0,10,0],
+    ['0.99.0',0,99,0],
+    ['2.0.0',2,0,0],
+    ['v0.0.0',0,0,0, true],
+    ['v0.0.1',0,0,1, true],
+    ['v1.0.0',1,0,0, true],
+    ['v0.10.0',0,10,0, true],
+    ['v0.99.0',0,99,0, true],
+    ['v2.0.0',2,0,0, true],
+    ['0.0.0',0,0,0, true],
+    ['0.0.1',0,0,1, true],
+    ['1.0.0',1,0,0, true],
+    ['0.10.0',0,10,0, true],
+    ['0.99.0',0,99,0, true],
+    ['2.0.0',2,0,0, true],
+    ['1.2.3',1,2,3],
+    ['1.2.3',1,2,3],
+    ['1.2.3',1,2,3],
+    ['1.2.3-5-foo',1,2,3],
+    ['1.2.3-5',1,2,3],
+    ['1.2.3-5-foo',1,2,3],
+    ['3.0.0',3,0,0],
+    ['1.2.3-a.10',1,2,3],
+    ['1.2.3-a.b',1,2,3],
+    ['1.2.3-a.b',1,2,3],
+    ['1.2.3-a.b.c.10.d.5',1,2,3],
+    ['1.2.3-r2',1,2,3],
+    ['1.2.3-r100',1,2,3]
+  ].forEach(function(v) {
+    var v0 = v[0];
+    var loose = v[4] || false;
+
+    var base = {
+            type:"object",
+            properties:{
+                "v":{
+                    type:"string",
+                    "semver": {
+                        loose: loose
+                    }
+                }
+            }
+        }, 
+        o = {v:v0};
+
+    base.properties.v.semver.loose = loose || false
+
+    o.v = v0;
+    base.properties.v.semver.major = true
+    t.ok(ajv.validate(base,o) , "ok: major('" + v0 + "')");
+    t.equal(o.v,v[1] , "equal: major('" + v0 + "', " + v[1] + ")");
+    delete base.properties.v.semver.major
+
+    o.v = v0;
+    base.properties.v.semver.minor = true
+    t.ok(ajv.validate(base,o) , "ok: minor('" + v0 + "')");
+    t.equal(o.v,v[2] , "equal: minor('" + v0 + "', " + v[2] + ")");
+    delete base.properties.v.semver.minor
+
+    o.v = v0;
+    base.properties.v.semver.patch = true
+    t.ok(ajv.validate(base,o) , "ok: patch('" + v0 + "')");
+    t.equal(o.v,v[3] , "equal: patch('" + v0 + "', " + v[3] + ")");
+    delete base.properties.v.semver.patch
+
+    o.v = v0;
+    base.properties.v.semver.clean = true
+    t.ok(ajv.validate(base,o) , "ok: clean('" + v0 + "')");
+    delete base.properties.v.semver.clean
+
   });
   t.end();
 });

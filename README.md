@@ -72,5 +72,18 @@ var validator = ajv.compile({
 }) 
 validator({version:"2.2.3",previousVersion:"1.7.12"}) // true
 validator({version:"1.2.3",previousVersion:"1.7.12"}) // false
+
+
+{
+			"version":{
+				# version should be a Semver string
+				"semver":true,
+			},
+			# schema should be a valid JSON Schema
+			"schema":{
+				"$ref": "http://json-schema.org/draft-06/schema#",
+			}
+		}
+
 ```
 
