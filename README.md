@@ -54,7 +54,7 @@ ajv.validate({type:"string",semver:{ltr:"1.0.0 - 2.0.0"}},
              "0.6.3-beta")
 ```
 
-And of course, you can validate object attributes, not just strings...
+And of course, you can validate object attributes, relations, and calculate 
 
 ```JavaScript
 var validator = ajv.compile({
@@ -62,28 +62,35 @@ var validator = ajv.compile({
 	properties:{
 		version:{
 			type:"string",
-			semver:true
+			semver:{"clean":true}
 		},
+		// the `previousVersion` should be less than the current version
 		previousVersion:{
 			type:"string",
 			semver:{"lt":{$data:"1/version"}}
+		},
+		// calculate the major minor and patch
+		Major:{
+			default: 0, // required to create new attribute
+			semver:{"major":{$data:"1/version"},loose:true}
+		},                                                
+		Minor:{                                           
+			default: 0, // required to create new attribute
+			semver:{"minor":{$data:"1/version"},loose:true}
+		},                                                
+		Patch:{                                           
+			default: 0, // required to create new attribute
+			semver:{"patch":{$data:"1/version"},loose:true}
 		}
-	}
+	},
+	required:["version"],
 }) 
-validator({version:"2.2.3",previousVersion:"1.7.12"}) // true
+
+var obj = {version:"=2.2.3"}
+validator(obj) // true
+obj // { version: '2.2.3', Major: 2, Minor: 2, Patch: 3 }
+
+// fails validation: `previousVersion` is not less than `version`:
 validator({version:"1.2.3",previousVersion:"1.7.12"}) // false
-
-
-{
-			"version":{
-				# version should be a Semver string
-				"semver":true,
-			},
-			# schema should be a valid JSON Schema
-			"schema":{
-				"$ref": "http://json-schema.org/draft-06/schema#",
-			}
-		}
-
 ```
 

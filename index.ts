@@ -10,8 +10,8 @@ export = function(ajv: AjvInstance,options: any){
 	ajv.addFormat("semver",semverRegex());
 
 	ajv.addKeyword("semver",{
-		type: "string",
-		modifies: false,
+//-- 		type: "string",
+		modifying: true,
 		$data: true,
 		compile: function(schema: boolean|semver_schema,par: any,it: any){
 			var _method: semver_method;
@@ -58,31 +58,47 @@ export = function(ajv: AjvInstance,options: any){
 			}
 
 //-- 			console.log("_method: ", _method,"schema: ", schema)
-			var _data: string = ( ((<data_ref>schema[_method]).$data) // formerly:  typeof schema[_method] !== 'string'
-								 ? it.util.getData((<data_ref>schema[_method]).$data, it.dataLevel, it.dataPathArr)
-								 : `"${schema[_method]}"` );
 			var out; 
 //-- 			console.log("_data: ", _data)
 			if(mod_methods.indexOf(_method) >= 0){
-//-- 				console.log("mod_methods: ", true)
+
+				var _inst:string
+				if(((<data_ref>schema[_method]).$data)){
+//-- 					if(!this._opts.useDefaults){
+//-- 						throw new Error(`To use {"semver":{"${_method}":{$data:"${((<data_ref>schema[_method]).$data)}"}"}}, Ajv instance should be create with option {"useDefaults":true}`)
+//-- 					}
+					_inst = it.util.getData((<data_ref>schema[_method]).$data, it.dataLevel, it.dataPathArr)
+				}else{
+					_inst = "inst"
+				}
+//-- 				var _inst: string = ( ((<data_ref>schema[_method]).$data) // formerly:  typeof schema[_method] !== 'string'
+//-- 									 ? it.util.getData((<data_ref>schema[_method]).$data, it.dataLevel, it.dataPathArr)
+//-- 									 :  );
+//-- 				console.log("_inst: ", _inst)
+//-- 				console.log("stmt: ",`try{var p= this.semver.${_method}(${_inst},this.loose); parent[prop_name] = p; console.log("parent[prop_name]: ",parent[prop_name],"p: ",p)}catch(err){console.log(err.message); return false; }; return true;`);
 				// modifying keywords
 			   	out = Function("inst",
 						   "path",
 						   "parent",
 						   "prop_name",
-						   "root",
+						   "data",
 						   //`console.log("args:",arguments);return true;`);
-						   `console.log("args:",arguments);try{ parent[prop_name] = this.semver.${_method}(inst,${_data},this.loose); }catch(err){ return false; }; return true;`);
+						   //console.log("args:",arguments, "_method: ${_method}" ,"loose: ", this.loose);
+//-- 						   `try{var p= this.semver.${_method}(${_inst},this.loose); parent[prop_name] = p; console.log("parent[prop_name]: ",parent[prop_name],"p: ",p)}catch(err){ return false; }; return true;`);
+						   `try{parent[prop_name] = this.semver.${_method}(${_inst},this.loose);}catch(err){ return false; }; return true;`);
 			}else{
+				var _data: string = ( ((<data_ref>schema[_method]).$data) // formerly:  typeof schema[_method] !== 'string'
+									 ? it.util.getData((<data_ref>schema[_method]).$data, it.dataLevel, it.dataPathArr)
+									 : `"${schema[_method]}"` );
 //-- 				console.log("mod_methods: ", false)
 				// relational keywords
 			   	out = Function("inst",
 						   "path",
 						   "parent",
 						   "prop_name",
-						   "root",
+						   "data",
 						   //console.log("arguments:",arguments,"this.loose: ", this.loose);
-						   `return this.semver.${_method}(inst,${_data},this.loose  );`);
+						   `console.log("arguments: ",arguments);return this.semver.${_method}(inst,${_data},this.loose  );`);
 			}
 			return out.bind({
 				"semver": semver,
@@ -96,10 +112,10 @@ export = function(ajv: AjvInstance,options: any){
 				{
 					type: "object",
 					properties: {
-						major: {type: "boolean"},
-						minor: {type: "boolean"},
-						patch: {type: "boolean"},
-						clean: {type: "boolean"},
+						major: {$ref: "#/bool_or_ref"},
+						minor: {$ref: "#/bool_or_ref"},
+						patch: {$ref: "#/bool_or_ref"},
+						clean: {$ref: "#/bool_or_ref"},
 						satisfies: {$ref: "#/string_or_ref"},
 						gt : {$ref: "#/string_or_ref"},
 						gte: {$ref: "#/string_or_ref"},
@@ -134,6 +150,19 @@ export = function(ajv: AjvInstance,options: any){
 					],
 				},
 			],
+			bool_or_ref: {
+				oneOf: [
+					{type: "boolean"},
+					{
+						type: "object",
+						properties: {
+							"$data": {type: "string"}
+						},
+						required: ["$data"],
+						maxProperties: 1,
+					},
+				]
+			},
 			string_or_ref: {
 				oneOf: [
 					{type: "string"},
@@ -160,10 +189,10 @@ type semver_method =
 interface data_ref { $data : string; }
 interface semver_schema {
 	// modify methods
-	major?: boolean;
-	minor?: boolean;
-	patch?: boolean;
-	clean?: boolean;
+	major?: boolean|data_ref;
+	minor?: boolean|data_ref;
+	patch?: boolean|data_ref;
+	clean?: boolean|data_ref;
 	// relational methods
 	satisfies?: string|data_ref;
 	gt ?: string|data_ref;
