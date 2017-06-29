@@ -67,14 +67,20 @@ var validator = ajv.compile({
 		// the `previousVersion` should be less than the current version
 		"previousVersion":{
 			"type":"string",
-			"semver":{"lt":{"$""data":"1/version"}}
+			"semver":{"lt":{"$data":"1/version"}}
 		}
 	},
 	"required":["version"]
 }) 
 
+validator({"version":"1.2.3","previousVersion":"0.7.12"}) // true
+
 // fails validation: `previousVersion` is not less than `version`
 validator({"version":"1.2.3","previousVersion":"1.7.12"}) // false
+
+// fails validation: invalid version string
+validator({"version":"1.2.3","previousVersion":"a.b.c"}) // false
+validator({"version":"a.b.c","previousVersion":"1.7.12"}) // false
 ```
 
 or clean your version strings and calculate major, minor, and patch -- handy
@@ -86,7 +92,7 @@ var ajv = new Ajv({
 		// required to create a new attribute
 		"useDefaults":true
 	});
-require("ajv-semver")(ajv);
+require("./index.js")(ajv);
 
 var validator = ajv.compile({
 	"type":"object",
@@ -97,16 +103,16 @@ var validator = ajv.compile({
 		},
 		// calculate the major minor and patch
 		"Major":{
-			"default": 0, // required to create a new attribute
-			"semver":{"major":{"$""data":"1/version"},"loose":true}
+			"default": null, // required to create a new attribute
+			"semver":{"major":{"$data":"1/version"},"loose":true}
 		},                                                
 		"Minor":{                                           
-			"default": 0, // required to create a new attribute
-			"semver":{"minor":{"$""data":"1/version"},"loose":true}
+			"default": null, // required to create a new attribute
+			"semver":{"minor":{"$data":"1/version"},"loose":true}
 		},                                                
 		"Patch":{                                           
-			"default": 0, // required to create a new attribute
-			"semver":{"patch":{"$""data":"1/version"},"loose":true}
+			"default": null, // required to create a new attribute
+			"semver":{"patch":{"$data":"1/version"},"loose":true}
 		}
 	},
 	"required":["version"]
@@ -115,5 +121,9 @@ var validator = ajv.compile({
 var obj = {"version":"=2.2.3"}
 validator(obj) // true
 obj // { version: '2.2.3', Major: 2, Minor: 2, Patch: 3 }
+
+var obj = {"version":"=a.b.c"}
+validator(obj) // false
+obj // { version: null, Major: null, Minor: null, Patch: null }
 ```
 

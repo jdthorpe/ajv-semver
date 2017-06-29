@@ -20,7 +20,7 @@ module.exports = function (ajv, options) {
             }
             else if (schema.prerelease !== undefined) {
                 return (function (data) { return semver.prerelease(data, schema.loose || false) !== null; });
-                // modifying keywords
+                // MODIFYING KEYWORDS
             }
             else if (schema.major !== undefined) {
                 _method = "major";
@@ -33,7 +33,7 @@ module.exports = function (ajv, options) {
             }
             else if (schema.clean !== undefined) {
                 _method = "clean";
-                // relational keywords
+                // RELATIONAL KEYWORDS
             }
             else if (schema.satisfies !== undefined) {
                 _method = "satisfies";
@@ -66,23 +66,43 @@ module.exports = function (ajv, options) {
                 throw new Error("Schema Error: this should be prevented by the metaSchema. Got schema:" + JSON.stringify(schema));
             }
             var out;
-            if (mod_methods.indexOf(_method) >= 0) {
-                // MODIFYING KEYWORDS
-                var _inst;
-                if ((schema[_method].$data)) {
-                    _inst = it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr);
+            switch (_method) {
+                case "major":
+                case "minor":
+                case "patch":
+                case "clean": {
+                    // MODIFYING KEYWORDS
+                    var _inst;
+                    if ((schema[_method].$data)) {
+                        _inst = it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr);
+                    }
+                    else {
+                        _inst = "inst";
+                    }
+                    out = Function("inst", "path", "parent", "prop_name", "data", "try{parent[prop_name] = this.semver." + _method + "(" + _inst + ",this.loose);}catch(err){ return false; }; return true;");
+                    break;
                 }
-                else {
-                    _inst = "inst";
+                case "satisfies":
+                case "eq":
+                case "lte":
+                case "gte":
+                case "ltr":
+                case "gtr":
+                    {
+                        // RELATIONAL (RANGE) KEYWORDS
+                        var _data = ((schema[_method].$data)
+                            ? it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr)
+                            : "\"" + schema[_method] + "\"");
+                        out = Function("inst", "path", "parent", "prop_name", "data", "if(this.semver.validRange(" + _data + ",this.loose)===null){return false;}if(this.semver.validRange(inst,this.loose)===null){return false;};return this.semver." + _method + "(inst," + _data + ",this.loose  );");
+                    }
+                    break;
+                default: {
+                    // RELATIONAL KEYWORDS
+                    var _data = ((schema[_method].$data)
+                        ? it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr)
+                        : "\"" + schema[_method] + "\"");
+                    out = Function("inst", "path", "parent", "prop_name", "data", "if(this.semver.valid(" + _data + ")===null){return false;}if(this.semver.valid(inst)===null){return false;};return this.semver." + _method + "(inst," + _data + ",this.loose  );");
                 }
-                out = Function("inst", "path", "parent", "prop_name", "data", "try{parent[prop_name] = this.semver." + _method + "(" + _inst + ",this.loose);}catch(err){ return false; }; return true;");
-            }
-            else {
-                // RELATIONAL KEYWORDS
-                var _data = ((schema[_method].$data) // formerly:  typeof schema[_method] !== 'string'
-                    ? it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr)
-                    : "\"" + schema[_method] + "\"");
-                out = Function("inst", "path", "parent", "prop_name", "data", "return this.semver." + _method + "(inst," + _data + ",this.loose  );");
             }
             return out.bind({
                 "semver": semver,
