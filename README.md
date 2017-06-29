@@ -99,7 +99,7 @@ var validator = ajv.compile({
 	"properties":{
 		"version":{
 			"type":"string",
-			"semver":{"clean":true}
+			"semver":true
 		},
 		// calculate the major minor and patch
 		"Major":{
