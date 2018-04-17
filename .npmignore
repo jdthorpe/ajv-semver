@@ -1,0 +1,8 @@
+node_modules
+typings/
+
+*.ts
+!*.d.ts
+*.map
+*~
+

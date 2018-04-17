@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "ajv": "registry:npm/ajv#3.5.0+20160208185606",
-    "semver": "registry:dt/semver#5.3.0+20170313061406"
-  },
-  "globalDependencies": {
-    "node": "registry:dt/node#7.0.0+20170322231424"
-  }
-}

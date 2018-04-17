@@ -1,9 +1,9 @@
 "use strict";
-var semverRegex = require('semver-regex'); // used for the string formats
+///<reference path="./typings.d.ts"/>
+var semverRegex = require("semver-regex"); // used for the string formats
 var semver = require("semver"); // used for everything else
-var mod_methods = ["major", "minor", "patch", "clean"];
-module.exports = function (ajv, options) {
-    ajv.addFormat("semver", semverRegex());
+module.exports = function (ajv) {
+    ajv.addFormat("semver", semverRegex);
     ajv.addKeyword("semver", {
         modifying: true,
         $data: true,

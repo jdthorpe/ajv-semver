@@ -1,13 +1,14 @@
-const semverRegex: {(): RegExp}  = require('semver-regex') // used for the string formats
+///<reference path="./typings.d.ts"/>
+
+import semverRegex = require('semver-regex') // used for the string formats
 import semver = require('semver'); // used for everything else
+import { Ajv } from 'ajv' // used for everything else
 
-import { AjvInstance } from 'ajv' // used for everything else
+// const mod_methods = [ "major", "minor", "patch", "clean"]
 
-const mod_methods = [ "major", "minor", "patch", "clean"]
+export = function(ajv: Ajv){
 
-export = function(ajv: AjvInstance,options: any){
-
-	ajv.addFormat("semver",semverRegex());
+	ajv.addFormat("semver",semverRegex);
 
 	ajv.addKeyword("semver",{
 		modifying: true,
