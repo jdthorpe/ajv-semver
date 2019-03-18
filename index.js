@@ -6,7 +6,6 @@ module.exports = function (ajv) {
     ajv.addFormat("semver", semverRegex);
     ajv.addKeyword("semver", {
         modifying: true,
-        $data: true,
         compile: function (schema, par, it) {
             var _method;
             if (typeof schema === 'boolean') {

@@ -12,7 +12,6 @@ export = function(ajv: Ajv){
 
 	ajv.addKeyword("semver",{
 		modifying: true,
-		$data: true,
 		compile: function(schema: boolean|semver_schema,par: any,it: any){
 
 			var _method: semver_method;
