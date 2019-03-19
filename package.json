@@ -1,6 +1,6 @@
 {
   "name": "ajv-semver",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Semver matching plugin for AJV",
   "main": "index.js",
   "scripts": {
