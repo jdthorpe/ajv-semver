@@ -1,6 +1,4 @@
-///<reference path="./typings.d.ts"/>
-
-import semverRegex = require('semver-regex') // used for the string formats
+import semverRegex = require('semver-regex'); // used for the string formats
 import semver = require('semver'); // used for everything else
 import { Ajv } from 'ajv' // used for everything else
 
@@ -8,7 +6,7 @@ import { Ajv } from 'ajv' // used for everything else
 
 export = function(ajv: Ajv){
 
-	ajv.addFormat("semver",semverRegex);
+	ajv.addFormat("semver",semverRegex().test);
 
 	ajv.addKeyword("semver",{
 		modifying: true,

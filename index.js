@@ -1,9 +1,8 @@
 "use strict";
-///<reference path="./typings.d.ts"/>
 var semverRegex = require("semver-regex"); // used for the string formats
 var semver = require("semver"); // used for everything else
 module.exports = function (ajv) {
-    ajv.addFormat("semver", semverRegex);
+    ajv.addFormat("semver", semverRegex().test);
     ajv.addKeyword("semver", {
         modifying: true,
         compile: function (schema, par, it) {
@@ -78,7 +77,7 @@ module.exports = function (ajv) {
                     else {
                         _inst = "inst";
                     }
-                    out = Function("inst", "path", "parent", "prop_name", "data", "try{parent[prop_name] = this.semver." + _method + "(" + _inst + ",this.loose);}catch(err){ return false; }; return true;");
+                    out = Function("inst", "path", "parent", "prop_name", "data", "try{parent[prop_name] = this.semver.".concat(_method, "(").concat(_inst, ",this.loose);}catch(err){ return false; }; return true;"));
                     break;
                 }
                 case "satisfies":
@@ -91,16 +90,16 @@ module.exports = function (ajv) {
                         // RELATIONAL (RANGE) KEYWORDS
                         var _data = ((schema[_method].$data)
                             ? it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr)
-                            : "\"" + schema[_method] + "\"");
-                        out = Function("inst", "path", "parent", "prop_name", "data", "if(this.semver.validRange(" + _data + ",this.loose)===null){return false;}if(this.semver.validRange(inst,this.loose)===null){return false;};return this.semver." + _method + "(inst," + _data + ",this.loose  );");
+                            : "\"".concat(schema[_method], "\""));
+                        out = Function("inst", "path", "parent", "prop_name", "data", "if(this.semver.validRange(".concat(_data, ",this.loose)===null){return false;}if(this.semver.validRange(inst,this.loose)===null){return false;};return this.semver.").concat(_method, "(inst,").concat(_data, ",this.loose  );"));
                     }
                     break;
                 default: {
                     // RELATIONAL KEYWORDS
                     var _data = ((schema[_method].$data)
                         ? it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr)
-                        : "\"" + schema[_method] + "\"");
-                    out = Function("inst", "path", "parent", "prop_name", "data", "if(this.semver.valid(" + _data + ")===null){return false;}if(this.semver.valid(inst)===null){return false;};return this.semver." + _method + "(inst," + _data + ",this.loose  );");
+                        : "\"".concat(schema[_method], "\""));
+                    out = Function("inst", "path", "parent", "prop_name", "data", "if(this.semver.valid(".concat(_data, ")===null){return false;}if(this.semver.valid(inst)===null){return false;};return this.semver.").concat(_method, "(inst,").concat(_data, ",this.loose  );"));
                 }
             }
             return out.bind({
