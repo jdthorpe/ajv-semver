@@ -1,6 +1,4 @@
-///<reference path="./typings.d.ts"/>
-
-import semverRegex = require('semver-regex') // used for the string formats
+import semverRegex = require('semver-regex'); // used for the string formats
 import semver = require('semver'); // used for everything else
 import { Ajv } from 'ajv' // used for everything else
 
@@ -8,7 +6,7 @@ import { Ajv } from 'ajv' // used for everything else
 
 export = function(ajv: Ajv){
 
-	ajv.addFormat("semver",semverRegex);
+	ajv.addFormat("semver",semverRegex().test);
 
 	ajv.addKeyword("semver",{
 		modifying: true,
@@ -125,19 +123,19 @@ export = function(ajv: Ajv){
 				{
 					type: "object",
 					properties: {
-						major: {$ref: "#/bool_or_ref"},
-						minor: {$ref: "#/bool_or_ref"},
-						patch: {$ref: "#/bool_or_ref"},
-						clean: {$ref: "#/bool_or_ref"},
-						satisfies: {$ref: "#/string_or_ref"},
-						gt : {$ref: "#/string_or_ref"},
-						gte: {$ref: "#/string_or_ref"},
-						lt : {$ref: "#/string_or_ref"},
-						lte: {$ref: "#/string_or_ref"},
-						eq : {$ref: "#/string_or_ref"},
-						neq: {$ref: "#/string_or_ref"},
-						ltr: {$ref: "#/string_or_ref"},
-						gtr: {$ref:  "#/string_or_ref"},
+						major: {$ref: "#/definitions/bool_or_ref"},
+						minor: {$ref: "#/definitions/bool_or_ref"},
+						patch: {$ref: "#/definitions/bool_or_ref"},
+						clean: {$ref: "#/definitions/bool_or_ref"},
+						satisfies: {$ref: "#/definitions/string_or_ref"},
+						gt : {$ref: "#/definitions/string_or_ref"},
+						gte: {$ref: "#/definitions/string_or_ref"},
+						lt : {$ref: "#/definitions/string_or_ref"},
+						lte: {$ref: "#/definitions/string_or_ref"},
+						eq : {$ref: "#/definitions/string_or_ref"},
+						neq: {$ref: "#/definitions/string_or_ref"},
+						ltr: {$ref: "#/definitions/string_or_ref"},
+						gtr: {$ref:  "#/definitions/string_or_ref"},
 						valid: {type: "boolean"},
 						validRange: {type: "boolean"},
 						prerelease: {type: "boolean"},
@@ -163,31 +161,33 @@ export = function(ajv: Ajv){
 					],
 				},
 			],
-			bool_or_ref: {
-				oneOf: [
-					{type: "boolean"},
-					{
-						type: "object",
-						properties: {
-							"$data": {type: "string"}
+			definitions: {
+				bool_or_ref: {
+					oneOf: [
+						{type: "boolean"},
+						{
+							type: "object",
+							properties: {
+								"$data": {type: "string"}
+							},
+							required: ["$data"],
+							maxProperties: 1,
 						},
-						required: ["$data"],
-						maxProperties: 1,
-					},
-				]
-			},
-			string_or_ref: {
-				oneOf: [
-					{type: "string"},
-					{
-						type: "object",
-						properties: {
-							"$data": {type: "string"}
+					]
+				},
+				string_or_ref: {
+					oneOf: [
+						{type: "string"},
+						{
+							type: "object",
+							properties: {
+								"$data": {type: "string"}
+							},
+							required: ["$data"],
+							maxProperties: 1,
 						},
-						required: ["$data"],
-						maxProperties: 1,
-					},
-				]
+					]
+				}
 			}
 		}
 
@@ -222,4 +222,3 @@ interface semver_schema {
 	prerelease?: boolean;
 	loose?: boolean;
 }
-

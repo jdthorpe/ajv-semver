@@ -5,7 +5,7 @@ var prerelease = semver.prerelease;
 
 var Ajv = require("ajv");
 var ajv = new Ajv();
-require("../index.js")(ajv)
+require("../index.js")(ajv);
 
 test('\nprerelease', function(t) {
   // [prereleaseParts, version, loose]
