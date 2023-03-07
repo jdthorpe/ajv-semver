@@ -5,7 +5,7 @@ var ltr = semver.ltr;
 
 var Ajv = require("ajv");
 var ajv = new Ajv();
-require("../index.js")(ajv);
+require("../index.js")(ajv)
 
 test('\nltr tests', function(t) {
   // [range, version, loose]

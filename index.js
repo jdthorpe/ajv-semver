@@ -1,23 +1,59 @@
 "use strict";
-var semverRegex = require("semver-regex"); // used for the string formats
-var semver = require("semver"); // used for everything else
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+const semver_regex_1 = __importDefault(require("semver-regex"));
+const semver_1 = __importStar(require("semver"));
+const validate_1 = require("ajv/dist/compile/validate");
 module.exports = function (ajv) {
-    ajv.addFormat("semver", semverRegex().test);
-    ajv.addKeyword("semver", {
+    ajv.addFormat("semver", (0, semver_regex_1.default)());
+    ajv.addKeyword({
+        keyword: "semver",
         modifying: true,
-        compile: function (schema, par, it) {
+        compile: function (schema, parentSchema, it) {
             var _method;
-            if (typeof schema === 'boolean') {
-                return (function (data) { return semver.valid(data) !== null; });
+            if (typeof schema === "boolean") {
+                return function (data) {
+                    return (0, semver_1.valid)(data) !== null;
+                };
             }
             else if (schema.valid !== undefined) {
-                return (function (data) { return semver.valid(data, schema.loose || false) !== null; });
+                return function (data) {
+                    return (0, semver_1.valid)(data, schema.loose || false) !== null;
+                };
             }
             else if (schema.validRange !== undefined) {
-                return (function (data) { return semver.validRange(data, schema.loose || false) !== null; });
+                return function (data) {
+                    return (0, semver_1.validRange)(data, schema.loose || false) !== null;
+                };
             }
             else if (schema.prerelease !== undefined) {
-                return (function (data) { return semver.prerelease(data, schema.loose || false) !== null; });
+                return function (data) {
+                    return (0, semver_1.prerelease)(data, schema.loose || false) !== null;
+                };
                 // MODIFYING KEYWORDS
             }
             else if (schema.major !== undefined) {
@@ -61,71 +97,111 @@ module.exports = function (ajv) {
                 _method = "gtr";
             }
             else {
-                throw new Error("Schema Error: this should be prevented by the metaSchema. Got schema:" + JSON.stringify(schema));
+                throw new Error("Schema Error: this should be prevented by the metaSchema. Got schema:" +
+                    JSON.stringify(schema));
             }
-            var out;
+            var spec = schema[_method].$data
+                ? (0, validate_1.getData)(schema[_method].$data, it).toString()
+                : schema[_method];
+            const loose = typeof schema === "boolean" ? schema : schema.loose || false;
             switch (_method) {
                 case "major":
                 case "minor":
                 case "patch":
                 case "clean": {
                     // MODIFYING KEYWORDS
-                    var _inst;
-                    if ((schema[_method].$data)) {
-                        _inst = it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr);
-                    }
-                    else {
-                        _inst = "inst";
-                    }
-                    out = Function("inst", "path", "parent", "prop_name", "data", "try{parent[prop_name] = this.semver.".concat(_method, "(").concat(_inst, ",this.loose);}catch(err){ return false; }; return true;"));
-                    break;
+                    return ((m) => (data, dataCxt) => {
+                        if (!dataCxt)
+                            return false;
+                        const { parentData, parentDataProperty } = dataCxt;
+                        try {
+                            parentData[parentDataProperty] = semver_1.default[m](data, loose);
+                        }
+                        catch (err) {
+                            return false;
+                        }
+                        return true;
+                    })(_method);
                 }
                 case "satisfies":
                 case "eq":
                 case "lte":
                 case "gte":
                 case "ltr":
-                case "gtr":
-                    {
-                        // RELATIONAL (RANGE) KEYWORDS
-                        var _data = ((schema[_method].$data)
-                            ? it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr)
-                            : "\"".concat(schema[_method], "\""));
-                        out = Function("inst", "path", "parent", "prop_name", "data", "if(this.semver.validRange(".concat(_data, ",this.loose)===null){return false;}if(this.semver.validRange(inst,this.loose)===null){return false;};return this.semver.").concat(_method, "(inst,").concat(_data, ",this.loose  );"));
-                    }
-                    break;
+                case "gtr": {
+                    // RELATIONAL (RANGE) KEYWORDS
+                    return ((m) => (data, dataCxt) => {
+                        if (!dataCxt)
+                            return false;
+                        if (semver_1.default.validRange(spec, loose) === null)
+                            return false;
+                        if (semver_1.default.validRange(data, loose) === null)
+                            return false;
+                        return semver_1.default[m](data, spec, loose);
+                    })(_method);
+                }
                 default: {
                     // RELATIONAL KEYWORDS
-                    var _data = ((schema[_method].$data)
-                        ? it.util.getData(schema[_method].$data, it.dataLevel, it.dataPathArr)
-                        : "\"".concat(schema[_method], "\""));
-                    out = Function("inst", "path", "parent", "prop_name", "data", "if(this.semver.valid(".concat(_data, ")===null){return false;}if(this.semver.valid(inst)===null){return false;};return this.semver.").concat(_method, "(inst,").concat(_data, ",this.loose  );"));
+                    return ((m) => (data, dataCxt) => {
+                        if (semver_1.default.valid(spec) === null) {
+                            return false;
+                        }
+                        if (semver_1.default.valid(data) === null) {
+                            return false;
+                        }
+                        const out = semver_1.default[m](data, spec, loose);
+                        return typeof out === "boolean" ? out : out !== null;
+                    })(_method);
                 }
             }
-            return out.bind({
-                "semver": semver,
-                "loose": (schema.loose || false)
-            });
         },
         metaSchema: {
+            $defs: {
+                bool_or_ref: {
+                    oneOf: [
+                        { type: "boolean" },
+                        {
+                            type: "object",
+                            properties: {
+                                $data: { type: "string" },
+                            },
+                            required: ["$data"],
+                            maxProperties: 1,
+                        },
+                    ],
+                },
+                string_or_ref: {
+                    oneOf: [
+                        { type: "string" },
+                        {
+                            type: "object",
+                            properties: {
+                                $data: { type: "string" },
+                            },
+                            required: ["$data"],
+                            maxProperties: 1,
+                        },
+                    ],
+                },
+            },
             oneOf: [
                 { type: "boolean" },
                 {
                     type: "object",
                     properties: {
-                        major: { $ref: "#/definitions/bool_or_ref" },
-                        minor: { $ref: "#/definitions/bool_or_ref" },
-                        patch: { $ref: "#/definitions/bool_or_ref" },
-                        clean: { $ref: "#/definitions/bool_or_ref" },
-                        satisfies: { $ref: "#/definitions/string_or_ref" },
-                        gt: { $ref: "#/definitions/string_or_ref" },
-                        gte: { $ref: "#/definitions/string_or_ref" },
-                        lt: { $ref: "#/definitions/string_or_ref" },
-                        lte: { $ref: "#/definitions/string_or_ref" },
-                        eq: { $ref: "#/definitions/string_or_ref" },
-                        neq: { $ref: "#/definitions/string_or_ref" },
-                        ltr: { $ref: "#/definitions/string_or_ref" },
-                        gtr: { $ref: "#/definitions/string_or_ref" },
+                        major: { $ref: "#/$defs/bool_or_ref" },
+                        minor: { $ref: "#/$defs/bool_or_ref" },
+                        patch: { $ref: "#/$defs/bool_or_ref" },
+                        clean: { $ref: "#/$defs/bool_or_ref" },
+                        satisfies: { $ref: "#/$defs/string_or_ref" },
+                        gt: { $ref: "#/$defs/string_or_ref" },
+                        gte: { $ref: "#/$defs/string_or_ref" },
+                        lt: { $ref: "#/$defs/string_or_ref" },
+                        lte: { $ref: "#/$defs/string_or_ref" },
+                        eq: { $ref: "#/$defs/string_or_ref" },
+                        neq: { $ref: "#/$defs/string_or_ref" },
+                        ltr: { $ref: "#/$defs/string_or_ref" },
+                        gtr: { $ref: "#/$defs/string_or_ref" },
                         valid: { type: "boolean" },
                         validRange: { type: "boolean" },
                         prerelease: { type: "boolean" },
@@ -151,34 +227,6 @@ module.exports = function (ajv) {
                     ],
                 },
             ],
-            definitions: {
-                bool_or_ref: {
-                    oneOf: [
-                        { type: "boolean" },
-                        {
-                            type: "object",
-                            properties: {
-                                "$data": { type: "string" }
-                            },
-                            required: ["$data"],
-                            maxProperties: 1,
-                        },
-                    ]
-                },
-                string_or_ref: {
-                    oneOf: [
-                        { type: "string" },
-                        {
-                            type: "object",
-                            properties: {
-                                "$data": { type: "string" }
-                            },
-                            required: ["$data"],
-                            maxProperties: 1,
-                        },
-                    ]
-                }
-            }
-        }
+        },
     });
 };
