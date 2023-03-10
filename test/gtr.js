@@ -1,9 +1,8 @@
-var tap = require("tap");
-var test = tap.test;
+const { test } = require("tap");
 
-var Ajv = require("ajv");
-var ajv = new Ajv();
-require("../index.js")(ajv);
+const Ajv = require("ajv");
+const ajv = new Ajv();
+require("../index.js").default(ajv);
 
 test("gtr tests", function (t) {
   // [range, version, loose]

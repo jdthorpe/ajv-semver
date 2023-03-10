@@ -1,11 +1,19 @@
-import semverRegex from "semver-regex";
-import semver, { valid, validRange, prerelease } from "semver";
-import Ajv, { SchemaObjCxt, AnySchemaObject, FuncKeywordDefinition } from "ajv";
+import * as semver from "semver";
+import Ajv from "ajv";
+import type { SchemaObjCxt, AnySchemaObject } from "ajv";
 import type { DataValidateFunction, DataValidationCxt } from "ajv/dist/types";
 import { getData } from "ajv/dist/compile/validate";
 
-export = function (ajv: Ajv) {
-  ajv.addFormat("semver", semverRegex());
+const { valid, validRange, prerelease } = semver;
+
+const semverRegex =
+  /(?:(?<=^v?|\sv?)(?:(?:0|[1-9]\d{0,9}?)\.){2}(?:0|[1-9]\d{0,9}?)(?:-(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?){0,100}?(?:\.(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?))*?){0,100}?(?:\+[\da-z-]+?(?:\.[\da-z-]+?)*?){0,100}?\b){1,200}?/gi;
+
+ajv_semver.default = ajv_semver;
+export = ajv_semver;
+
+function ajv_semver(ajv: Ajv) {
+  ajv.addFormat("semver", semverRegex);
 
   ajv.addKeyword({
     keyword: "semver",
@@ -203,7 +211,7 @@ export = function (ajv: Ajv) {
       ],
     },
   });
-};
+}
 
 type modifying_keyword = "major" | "minor" | "patch" | "clean";
 type range_keyword = "satisfies" | "eq" | "lte" | "gte" | "ltr" | "gtr";

@@ -22,14 +22,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-const semver_regex_1 = __importDefault(require("semver-regex"));
-const semver_1 = __importStar(require("semver"));
+const semver = __importStar(require("semver"));
 const validate_1 = require("ajv/dist/compile/validate");
-module.exports = function (ajv) {
-    ajv.addFormat("semver", (0, semver_regex_1.default)());
+const { valid, validRange, prerelease } = semver;
+const semverRegex = /(?:(?<=^v?|\sv?)(?:(?:0|[1-9]\d{0,9}?)\.){2}(?:0|[1-9]\d{0,9}?)(?:-(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?){0,100}?(?:\.(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?))*?){0,100}?(?:\+[\da-z-]+?(?:\.[\da-z-]+?)*?){0,100}?\b){1,200}?/gi;
+ajv_semver.default = ajv_semver;
+function ajv_semver(ajv) {
+    ajv.addFormat("semver", semverRegex);
     ajv.addKeyword({
         keyword: "semver",
         modifying: true,
@@ -37,22 +36,22 @@ module.exports = function (ajv) {
             var _method;
             if (typeof schema === "boolean") {
                 return function (data) {
-                    return (0, semver_1.valid)(data) !== null;
+                    return valid(data) !== null;
                 };
             }
             else if (schema.valid !== undefined) {
                 return function (data) {
-                    return (0, semver_1.valid)(data, schema.loose || false) !== null;
+                    return valid(data, schema.loose || false) !== null;
                 };
             }
             else if (schema.validRange !== undefined) {
                 return function (data) {
-                    return (0, semver_1.validRange)(data, schema.loose || false) !== null;
+                    return validRange(data, schema.loose || false) !== null;
                 };
             }
             else if (schema.prerelease !== undefined) {
                 return function (data) {
-                    return (0, semver_1.prerelease)(data, schema.loose || false) !== null;
+                    return prerelease(data, schema.loose || false) !== null;
                 };
                 // MODIFYING KEYWORDS
             }
@@ -115,7 +114,7 @@ module.exports = function (ajv) {
                             return false;
                         const { parentData, parentDataProperty } = dataCxt;
                         try {
-                            parentData[parentDataProperty] = semver_1.default[m](data, loose);
+                            parentData[parentDataProperty] = semver[m](data, loose);
                         }
                         catch (err) {
                             return false;
@@ -133,23 +132,23 @@ module.exports = function (ajv) {
                     return ((m) => (data, dataCxt) => {
                         if (!dataCxt)
                             return false;
-                        if (semver_1.default.validRange(spec, loose) === null)
+                        if (semver.validRange(spec, loose) === null)
                             return false;
-                        if (semver_1.default.validRange(data, loose) === null)
+                        if (semver.validRange(data, loose) === null)
                             return false;
-                        return semver_1.default[m](data, spec, loose);
+                        return semver[m](data, spec, loose);
                     })(_method);
                 }
                 default: {
                     // RELATIONAL KEYWORDS
                     return ((m) => (data, dataCxt) => {
-                        if (semver_1.default.valid(spec) === null) {
+                        if (semver.valid(spec) === null) {
                             return false;
                         }
-                        if (semver_1.default.valid(data) === null) {
+                        if (semver.valid(data) === null) {
                             return false;
                         }
-                        const out = semver_1.default[m](data, spec, loose);
+                        const out = semver[m](data, spec, loose);
                         return typeof out === "boolean" ? out : out !== null;
                     })(_method);
                 }
@@ -229,4 +228,5 @@ module.exports = function (ajv) {
             ],
         },
     });
-};
+}
+module.exports = ajv_semver;

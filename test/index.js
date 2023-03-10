@@ -16,7 +16,7 @@ var test = tap.test;
 
 var Ajv = require("ajv");
 var ajv = new Ajv();
-require("../index.js")(ajv);
+require("../index.js").default(ajv);
 
 test("\ncomparison tests", function (t) {
   // [version1, version2]
