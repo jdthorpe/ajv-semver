@@ -4,6 +4,7 @@
   "description": "Semver matching plugin for AJV",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "test": "./node_modules/.bin/tap test/*.js"
   },
   "keywords": [

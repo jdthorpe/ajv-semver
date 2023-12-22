@@ -25,7 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 const semver = __importStar(require("semver"));
 const validate_1 = require("ajv/dist/compile/validate");
 const { valid, validRange, prerelease } = semver;
-const semverRegex = /(?:(?<=^v?|\sv?)(?:(?:0|[1-9]\d{0,9}?)\.){2}(?:0|[1-9]\d{0,9}?)(?:-(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?){0,100}?(?:\.(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?))*?){0,100}?(?:\+[\da-z-]+?(?:\.[\da-z-]+?)*?){0,100}?\b){1,200}?/gi;
+const semverRegex = /(?:(?<=^v?|\sv?)(?:(?:0|[1-9]\d{0,9}?)\.){2}(?:0|[1-9]\d{0,9}?)(?:-(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?){0,100}?(?:\.(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?))*?){0,100}?(?:\+[\da-z-]+?(?:\.[\da-z-]+?)*?){0,100}?\b){1,200}?/i;
 ajv_semver.default = ajv_semver;
 function ajv_semver(ajv) {
     ajv.addFormat("semver", semverRegex);

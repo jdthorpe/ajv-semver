@@ -1,13 +1,13 @@
 import * as semver from "semver";
 import Ajv from "ajv";
-import type { SchemaObjCxt, AnySchemaObject } from "ajv";
-import type { DataValidateFunction, DataValidationCxt } from "ajv/dist/types";
-import { getData } from "ajv/dist/compile/validate";
+import type {SchemaObjCxt, AnySchemaObject} from "ajv";
+import type {DataValidateFunction, DataValidationCxt} from "ajv/dist/types";
+import {getData} from "ajv/dist/compile/validate";
 
-const { valid, validRange, prerelease } = semver;
+const {valid, validRange, prerelease} = semver;
 
 const semverRegex =
-  /(?:(?<=^v?|\sv?)(?:(?:0|[1-9]\d{0,9}?)\.){2}(?:0|[1-9]\d{0,9}?)(?:-(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?){0,100}?(?:\.(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?))*?){0,100}?(?:\+[\da-z-]+?(?:\.[\da-z-]+?)*?){0,100}?\b){1,200}?/gi;
+  /(?:(?<=^v?|\sv?)(?:(?:0|[1-9]\d{0,9}?)\.){2}(?:0|[1-9]\d{0,9}?)(?:-(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?){0,100}?(?:\.(?:0|[1-9]\d*?|[\da-z-]*?[a-z-][\da-z-]*?))*?){0,100}?(?:\+[\da-z-]+?(?:\.[\da-z-]+?)*?){0,100}?\b){1,200}?/i;
 
 ajv_semver.default = ajv_semver;
 export = ajv_semver;
@@ -93,7 +93,7 @@ function ajv_semver(ajv: Ajv) {
           return ((m) => (data: any, dataCxt?: DataValidationCxt) => {
             if (!dataCxt) return false;
 
-            const { parentData, parentDataProperty } = dataCxt;
+            const {parentData, parentDataProperty} = dataCxt;
 
             try {
               parentData[parentDataProperty] = semver[<modifying_keyword>m](
@@ -141,11 +141,11 @@ function ajv_semver(ajv: Ajv) {
       $defs: {
         bool_or_ref: {
           oneOf: [
-            { type: "boolean" },
+            {type: "boolean"},
             {
               type: "object",
               properties: {
-                $data: { type: "string" },
+                $data: {type: "string"},
               },
               required: ["$data"],
               maxProperties: 1,
@@ -154,11 +154,11 @@ function ajv_semver(ajv: Ajv) {
         },
         string_or_ref: {
           oneOf: [
-            { type: "string" },
+            {type: "string"},
             {
               type: "object",
               properties: {
-                $data: { type: "string" },
+                $data: {type: "string"},
               },
               required: ["$data"],
               maxProperties: 1,
@@ -167,45 +167,45 @@ function ajv_semver(ajv: Ajv) {
         },
       },
       oneOf: [
-        { type: "boolean" },
+        {type: "boolean"},
         {
           type: "object",
           properties: {
-            major: { $ref: "#/$defs/bool_or_ref" },
-            minor: { $ref: "#/$defs/bool_or_ref" },
-            patch: { $ref: "#/$defs/bool_or_ref" },
-            clean: { $ref: "#/$defs/bool_or_ref" },
-            satisfies: { $ref: "#/$defs/string_or_ref" },
-            gt: { $ref: "#/$defs/string_or_ref" },
-            gte: { $ref: "#/$defs/string_or_ref" },
-            lt: { $ref: "#/$defs/string_or_ref" },
-            lte: { $ref: "#/$defs/string_or_ref" },
-            eq: { $ref: "#/$defs/string_or_ref" },
-            neq: { $ref: "#/$defs/string_or_ref" },
-            ltr: { $ref: "#/$defs/string_or_ref" },
-            gtr: { $ref: "#/$defs/string_or_ref" },
-            valid: { type: "boolean" },
-            validRange: { type: "boolean" },
-            prerelease: { type: "boolean" },
-            loose: { type: "boolean" },
+            major: {$ref: "#/$defs/bool_or_ref"},
+            minor: {$ref: "#/$defs/bool_or_ref"},
+            patch: {$ref: "#/$defs/bool_or_ref"},
+            clean: {$ref: "#/$defs/bool_or_ref"},
+            satisfies: {$ref: "#/$defs/string_or_ref"},
+            gt: {$ref: "#/$defs/string_or_ref"},
+            gte: {$ref: "#/$defs/string_or_ref"},
+            lt: {$ref: "#/$defs/string_or_ref"},
+            lte: {$ref: "#/$defs/string_or_ref"},
+            eq: {$ref: "#/$defs/string_or_ref"},
+            neq: {$ref: "#/$defs/string_or_ref"},
+            ltr: {$ref: "#/$defs/string_or_ref"},
+            gtr: {$ref: "#/$defs/string_or_ref"},
+            valid: {type: "boolean"},
+            validRange: {type: "boolean"},
+            prerelease: {type: "boolean"},
+            loose: {type: "boolean"},
           },
           oneOf: [
-            { required: ["major"] },
-            { required: ["minor"] },
-            { required: ["patch"] },
-            { required: ["clean"] },
-            { required: ["satisfies"] },
-            { required: ["validRange"] },
-            { required: ["gt"] },
-            { required: ["gte"] },
-            { required: ["lt"] },
-            { required: ["lte"] },
-            { required: ["eq"] },
-            { required: ["neq"] },
-            { required: ["ltr"] },
-            { required: ["gtr"] },
-            { required: ["valid"] },
-            { required: ["prerelease"] },
+            {required: ["major"]},
+            {required: ["minor"]},
+            {required: ["patch"]},
+            {required: ["clean"]},
+            {required: ["satisfies"]},
+            {required: ["validRange"]},
+            {required: ["gt"]},
+            {required: ["gte"]},
+            {required: ["lt"]},
+            {required: ["lte"]},
+            {required: ["eq"]},
+            {required: ["neq"]},
+            {required: ["ltr"]},
+            {required: ["gtr"]},
+            {required: ["valid"]},
+            {required: ["prerelease"]},
           ],
         },
       ],
